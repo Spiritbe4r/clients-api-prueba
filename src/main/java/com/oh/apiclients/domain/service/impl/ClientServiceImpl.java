@@ -8,6 +8,8 @@ import com.oh.apiclients.domain.repository.ClientRepository;
 import com.oh.apiclients.domain.service.ClientService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,7 +22,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Iterable<ClientDTO> findAll() {
+    public List<ClientDTO> findAll() {
         return clientRepository.findAll().stream()
                 .map(Client::toClientDTO).collect(Collectors.toList());
     }
@@ -34,7 +36,7 @@ public class ClientServiceImpl implements ClientService {
                 .lastName(clientWebDTO.getLastName()).build();
 
 
-        return Client.toClientDTO(clientRepository.save(client));
+        return Client.toCreateClientDTO(clientRepository.save(client));
     }
 
     @Override
@@ -51,9 +53,9 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientDTO findClientById(Long id) {
-        var client = clientRepository.findById(id).orElseThrow(()-> new NotFoundException("Client not found with this Id : " + id));
-        return Client.toClientDTO(client);
+    public Optional<ClientDTO> findClientById(Long id) {
+        var client = clientRepository.findById(id).orElse(new Client());
+        return Optional.of(Client.toClientDTO(client));
     }
 
     @Override

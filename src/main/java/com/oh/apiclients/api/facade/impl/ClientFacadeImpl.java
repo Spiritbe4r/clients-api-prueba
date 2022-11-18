@@ -6,6 +6,9 @@ import com.oh.apiclients.domain.dto.ClientDTO;
 import com.oh.apiclients.domain.service.ClientService;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Optional;
+
 @Component
 
 public class ClientFacadeImpl implements ClientFacade {
@@ -17,7 +20,7 @@ public class ClientFacadeImpl implements ClientFacade {
     }
 
     @Override
-    public Iterable<ClientDTO> findAll() {
+    public List<ClientDTO> findAll() {
         return clientService.findAll();
     }
 
@@ -32,7 +35,7 @@ public class ClientFacadeImpl implements ClientFacade {
     }
 
     @Override
-    public ClientDTO findClientById(Long id) {
+    public Optional<ClientDTO> findClientById(Long id) {
         return clientService.findClientById(id);
     }
 

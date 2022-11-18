@@ -13,8 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping(value = "clients")
+@RequestMapping(value = "/clients")
 public class ClientController {
 
     private final ClientFacade clientFacade;
@@ -29,7 +31,7 @@ public class ClientController {
             @ApiResponse(responseCode = "200", description = "Clone created", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = ClientDTO.class))}),
             @ApiResponse(responseCode = "500", description = "An error occured.", content = @Content)})
-    public ResponseEntity<Iterable<ClientDTO>> getClients() {
+    public ResponseEntity<List<ClientDTO>> getClients() {
         var result = clientFacade.findAll();
         return ResponseEntity.ok(result);
     }
@@ -42,7 +44,10 @@ public class ClientController {
             @ApiResponse(responseCode = "404", description = "Item not Found.", content = @Content)})
     public ResponseEntity<ClientDTO> getClientById(@Parameter(name = "id", description = "Client Identifier", required = true) @PathVariable Long id) {
         var result = clientFacade.findClientById(id);
-        return ResponseEntity.ok().body(result);
+        if(result.isPresent()){
+            return ResponseEntity.ok().body(result.get());
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @PostMapping
@@ -53,7 +58,7 @@ public class ClientController {
             @ApiResponse(responseCode = "500", description = "An error occured.", content = @Content)})
     public ResponseEntity<ClientDTO> createClient(@RequestBody ClientWebDTO clientWebDTO) {
         var result = clientFacade.createClient(clientWebDTO);
-        return ResponseEntity.ok().body(result);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @PutMapping(value = "/{id}")
@@ -75,6 +80,6 @@ public class ClientController {
             @ApiResponse(responseCode = "404", description = "Client not Found.")})
     public ResponseEntity<Void> deleteClientById(@Parameter(name = "id", description = "Client Identifier", required = true) @PathVariable Long id) {
         clientFacade.deleteClient(id);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

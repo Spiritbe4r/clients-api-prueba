@@ -2,18 +2,19 @@ package com.oh.apiclients.domain.service;
 
 import com.oh.apiclients.api.dto.ClientWebDTO;
 import com.oh.apiclients.domain.dto.ClientDTO;
-import com.oh.apiclients.domain.entities.Client;
-import com.oh.apiclients.domain.repository.ClientRepository;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface ClientService {
 
-    Iterable<ClientDTO> findAll();
+    List<ClientDTO> findAll();
 
     ClientDTO createClient(ClientWebDTO clientWebDTO);
 
-    ClientDTO updateClient(Long id ,ClientWebDTO clientWebDTO);
+    ClientDTO updateClient(Long id, ClientWebDTO clientWebDTO);
 
-    ClientDTO findClientById(Long id);
+    Optional<ClientDTO> findClientById(Long id);
 
     void deleteClient(Long id);
 
