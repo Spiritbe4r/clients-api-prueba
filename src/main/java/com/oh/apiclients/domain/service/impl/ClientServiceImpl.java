@@ -54,8 +54,11 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public Optional<ClientDTO> findClientById(Long id) {
-        var client = clientRepository.findById(id).orElse(new Client());
-        return Optional.of(Client.toClientDTO(client));
+        var client = clientRepository.findById(id);
+        if (client.isEmpty()) {
+            throw new NotFoundException("Client with this id : " + id + " not found");
+        }
+        return Optional.ofNullable(Client.toClientDTO(client.get()));
     }
 
     @Override

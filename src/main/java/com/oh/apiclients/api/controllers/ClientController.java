@@ -3,6 +3,7 @@ package com.oh.apiclients.api.controllers;
 import com.oh.apiclients.api.dto.ClientWebDTO;
 import com.oh.apiclients.api.facade.ClientFacade;
 import com.oh.apiclients.domain.dto.ClientDTO;
+import com.oh.apiclients.domain.exception.NotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -49,10 +50,8 @@ public class ClientController {
             @ApiResponse(responseCode = "404", description = "Item not Found.", content = @Content)})
     public ResponseEntity<ClientDTO> getClientById(@Parameter(name = "id", description = "Client Identifier", required = true) @PathVariable Long id) {
         var result = clientFacade.findClientById(id);
-        if(result.isPresent()){
-            return ResponseEntity.ok().body(result.get());
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return result.map(clientDTO -> ResponseEntity.ok().body(clientDTO))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping
@@ -88,15 +87,4 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
-    }
 }
