@@ -11,9 +11,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/clients")
@@ -56,7 +61,7 @@ public class ClientController {
             @ApiResponse(responseCode = "201", description = "Client created", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = ClientDTO.class))}),
             @ApiResponse(responseCode = "500", description = "An error occured.", content = @Content)})
-    public ResponseEntity<ClientDTO> createClient(@RequestBody ClientWebDTO clientWebDTO) {
+    public ResponseEntity<ClientDTO> createClient(@Valid @RequestBody ClientWebDTO clientWebDTO) {
         var result = clientFacade.createClient(clientWebDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
@@ -81,5 +86,17 @@ public class ClientController {
     public ResponseEntity<Void> deleteClientById(@Parameter(name = "id", description = "Client Identifier", required = true) @PathVariable Long id) {
         clientFacade.deleteClient(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
     }
 }
